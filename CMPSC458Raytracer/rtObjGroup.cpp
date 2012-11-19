@@ -17,19 +17,22 @@ rtObject* rtObjGroup::getObj(int index)
 	return myObjects.at(index);
 }
 
-float rtObjGroup::testIntersections(Vec3f eye, Vec3f dir)
+float rtObjGroup::testIntersections(Vec3f eye, Vec3f dir, rtObject *skip)
 {
 	float closest = MAX_DIST;
 	float currentDist;
 	//test intersection distance with every object in the group
 	for (int iter=0; iter<myObjects.size(); iter++)
 	{
-		currentDist = myObjects.at(iter)->testIntersection(eye, dir);
-		//keep track of closest distance and remember index of closest object
-		if (currentDist<closest)
+		if( myObjects.at(iter) != skip)
 		{
-			closest = currentDist;
-			indexOfClosest = iter;
+			currentDist = myObjects.at(iter)->testIntersection(eye, dir);
+			//keep track of closest distance and remember index of closest object
+			if (currentDist<closest)
+			{
+				closest = currentDist;
+				indexOfClosest = iter;
+			}
 		}
 	}
 	return closest;

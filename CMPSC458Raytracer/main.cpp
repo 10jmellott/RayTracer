@@ -19,7 +19,6 @@
 
 using namespace std;
 
-#define PI 3.14159265359
 #define WI 640
 #define HE 480
 #define TEST_SCENE 1
@@ -43,7 +42,7 @@ int main(int argc, char **argv)
 {
 	if(TEST_SCENE)
 	{
-		myScene = new scene("spl.ray");
+		myScene = new scene("te.ray");
 	}
 	else
 	{
@@ -116,7 +115,7 @@ void drawScene(int d)
 			Vec3f curdir = dir + (up * v) + (left * u);
 			curdir.Normalize();
 
-			currentColor = myScene->rayTrace(eye, curdir, 0);		// initialize the ray tracing with given vectors
+			currentColor = myScene->rayTrace(eye, curdir, 0, NULL);	// initialize the ray tracing with given vectors
 
 			//put the color into our image buffer (making sure value is within range)
 			plotPixel(x,y,((int)(min(max(currentColor.x(),0),1)*255))%256,

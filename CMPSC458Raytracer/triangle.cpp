@@ -72,5 +72,21 @@ Vec3f triangle::getTextureCoords(Vec3f eye, Vec3f dir)
 	//to find the texture surface location of the point you are seeing
 
 	Vec3f coords;
+
+	Vec3f b =    point0 - eye;
+	Vec3f amb =  point0 - point1;
+	Vec3f amc =  point0 - point2;
+
+	float detA = x3Det(&amb, &amc, &dir);
+	float B = x3Det(&b, &amc, &dir) / detA;
+	float G = x3Det(&amb, &b, &dir) / detA;
+
+	Vec3f tex_amb = Vec3f(texX1 - texX0, texY1 - texY0, 0);
+	//tex_amb.Normalize();
+	Vec3f tex_amc = Vec3f(texX2 - texX0, texY2 - texY0, 0);
+	//tex_amc.Normalize();
+
+	coords = Vec3f(texX0, texY0, 0) + tex_amb * B + tex_amc * G;
+
 	return coords;
 }

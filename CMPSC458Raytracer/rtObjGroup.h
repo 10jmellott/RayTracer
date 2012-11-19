@@ -19,7 +19,7 @@ public:
 	//returns the distance from the eye to the point of
 	//intersection with the closest object in the group
 	//or 9999999 if no intersection exists
-	float testIntersections(Vec3f eye, Vec3f dir);
+	float testIntersections(Vec3f eye, Vec3f dir, rtObject *skip);
 
 	//accessor for objects in the vector
 	rtObject* getObj(int index);

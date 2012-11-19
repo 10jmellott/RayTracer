@@ -12,19 +12,20 @@ scene::scene(const char* filename)
 	cout<<endl;
 }
 
-Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
+Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth, rtObject *skip_obj)
 {
 	//start with black, add color as we go
 	Vec3f answer(0,0,0);
 
 	//test for intersection against all our objects
-	float dist = myObjGroup->testIntersections(eye, dir);
+	float dist = myObjGroup->testIntersections(eye, dir, skip_obj);
 
 	//if we saw nothing, return the background color of our scene
 	if (dist==MAX_DIST)
 		return bgColor;
 
 	rtObject *closest_obj = myObjGroup->getClosest();
+	Vec3f closest_inter = eye + dir * dist;
 
 	//get the material index and normal vector(at the point we saw) of the object we saw
 	int matIndex = closest_obj->getMatIndex();
@@ -40,6 +41,7 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
 	{
 		//if there is a texture image, ask the object for the image coordinates (between 0 and 1)
 		Vec3f coords = closest_obj->getTextureCoords(eye, dir);
+
 		//get the color from that image location
 		textureColor.Set(
 			PIC_PIXEL(myMaterials.at(matIndex).texture,(int)(myMaterials.at(matIndex).texture->nx*coords.x()),(int)(myMaterials.at(matIndex).texture->ny*coords.y()),0),
@@ -54,35 +56,37 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
 	//iterate through all lights
 	for(vector<light>::iterator li = myLights.begin(); li != myLights.end(); li++)
 	{
-		Vec3f light = li->position - (eye + (dir * dist));
+		Vec3f light = li->position - closest_inter;
 		light.Normalize();
-		// this is the step for shadows, note to skip shadow test with the object itself for rough calc.
-		// int t = myObjGroup->testIntersections(eye + (dir * dist), li->position - (eye + (dir * dist)));
-		// int t = myObjGroup->testIntersections(li->position, d_ray);
 
-		Vec3f lambert = multiplyColorVectors(myMaterials.at(matIndex).diffuseCol, li->color * max(0.0f, light.Dot3(normal)));
-		answer += lambert;
+		int t = myObjGroup->testIntersections(li->position, light, closest_obj);
 
-		Vec3f h = light - dir;
-		h.Normalize();
+		if(t == MAX_DIST)
+		{
+			Vec3f lambert = multiplyColorVectors(myMaterials.at(matIndex).diffuseCol, li->color * max(0.0f, light.Dot3(normal)));
+			answer += lambert;
 
-		Vec3f phong = myMaterials.at(matIndex).specularCol * pow(normal.Dot3(h), myMaterials.at(matIndex).shininess);
-		answer += phong;
-		
-		
+			Vec3f h = light - dir;
+			h.Normalize();
+
+			Vec3f phong = myMaterials.at(matIndex).specularCol * pow(normal.Dot3(h), myMaterials.at(matIndex).shininess);
+			answer += phong;
+		}
 	}
 
 	//add the diffuse light times the accumulated diffuse light to our answer
-	int recurseLimit = 3;
+	int recurseLimit = 2;
 
 	//put a limit on the depth of recursion
 	if (recurseDepth<recurseLimit)
 	{
 		//reflect our view across the normal
+		Vec3f reflect = dir - normal * (2 * dir.Dot3(normal));
 		//recusively raytrace from the surface point along the reflected view
 		//add the color seen times the reflective color
-
-		
+		Vec3f recurseCol = rayTrace(closest_inter, reflect, recurseDepth+1, closest_obj);
+		if(recurseCol != bgColor)
+			answer=multiplyColorVectors(answer, recurseCol);
 
 		//if going into material (dot prod of dir and normal is negative), bend toward normal
 			//find entry angle using inverse cos of dot product of dir and -normal

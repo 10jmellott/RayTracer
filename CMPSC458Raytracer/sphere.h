@@ -4,6 +4,10 @@
 #include "rtObject.h"
 #include "scene.h"
 
+#ifndef PI
+#define PI 3.14159265359
+#endif
+
 class sphere : public rtObject
 {
 public:

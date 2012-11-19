@@ -31,7 +31,7 @@ public:
 	float getFovy();
 
 	//returns the rgb color seen from this eye in this direction
-	Vec3f rayTrace(Vec3f eye, Vec3f dir, int recurseDepth);
+	Vec3f rayTrace(Vec3f eye, Vec3f dir, int recurseDepth, rtObject *skip_obj);
 
 	//destructor
 	~scene();

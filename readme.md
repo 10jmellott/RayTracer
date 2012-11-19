@@ -26,6 +26,12 @@ None as of yet.
 
 
 ##progress##
+###Ver. 2###
+Shadow Rays worked out correctly.
+Texture mapping is correct for spheres and triangles.
+Recursive raytracing is partially implemented. 
+Note: to test the program normally ```TEST_SCENE``` should be set to 0.
+
 ###Ver. 1###
 Finished the Intersections for both a triangle and sphere.
 Sphere normal calculation is correct.
