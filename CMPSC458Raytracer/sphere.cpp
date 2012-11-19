@@ -25,7 +25,7 @@ Vec3f sphere::getNormal(Vec3f eye, Vec3f dir)
 	//then subtract the center location of the sphere to get the normal out from the sphere
 	Vec3f normal;
 
-	//dont forget to normalize
+	normal = (eye + dir * testIntersection(eye, dir)) - center;	
 	normal.Normalize();
 
 	return normal;

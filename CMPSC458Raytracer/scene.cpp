@@ -24,20 +24,22 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
 	if (dist==MAX_DIST)
 		return bgColor;
 
-	//get the material index and normal vector(at the point we saw) of the object we saw
-	int matIndex = myObjGroup->getClosest()->getMatIndex();
-	Vec3f normal = myObjGroup->getClosest()->getNormal(eye, dir);
+	rtObject *closest_obj = myObjGroup->getClosest();
 
+	//get the material index and normal vector(at the point we saw) of the object we saw
+	int matIndex = closest_obj->getMatIndex();
+	Vec3f normal = closest_obj->getNormal(eye, dir);
+	
 	//determine texture color
 	Vec3f textureColor;
 	if (myMaterials.at(matIndex).texture==NULL)
-		//this is multiplicative, rather than additive
-		//so if there is no texture, just use ones
+	{
 		textureColor.Set(1,1,1);
+	}
 	else
 	{
 		//if there is a texture image, ask the object for the image coordinates (between 0 and 1)
-		Vec3f coords = myObjGroup->getClosest()->getTextureCoords(eye, dir);
+		Vec3f coords = closest_obj->getTextureCoords(eye, dir);
 		//get the color from that image location
 		textureColor.Set(
 			PIC_PIXEL(myMaterials.at(matIndex).texture,(int)(myMaterials.at(matIndex).texture->nx*coords.x()),(int)(myMaterials.at(matIndex).texture->ny*coords.y()),0),
@@ -47,18 +49,35 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
 	}
 
 	//add diffuse color times ambient light to our answer
+	answer += multiplyColorVectors(myMaterials.at(matIndex).diffuseCol, ambLight);
 
 	//iterate through all lights
-	
-	//if the light can see the surface point,
-	//add its diffuse color to a total diffuse for the point (using our illumination model)
-	//use testIntersection to help decide this
+	for(vector<light>::iterator li = myLights.begin(); li != myLights.end(); li++)
+	{
+		Vec3f light = li->position - (eye + (dir * dist));
+		light.Normalize();
+		// this is the step for shadows, note to skip shadow test with the object itself for rough calc.
+		// int t = myObjGroup->testIntersections(eye + (dir * dist), li->position - (eye + (dir * dist)));
+		// int t = myObjGroup->testIntersections(li->position, d_ray);
+
+		Vec3f lambert = multiplyColorVectors(myMaterials.at(matIndex).diffuseCol, li->color * max(0.0f, light.Dot3(normal)));
+		answer += lambert;
+
+		Vec3f h = light - dir;
+		h.Normalize();
+
+		Vec3f phong = myMaterials.at(matIndex).specularCol * pow(normal.Dot3(h), myMaterials.at(matIndex).shininess);
+		answer += phong;
+		
+		
+	}
 
 	//add the diffuse light times the accumulated diffuse light to our answer
+	int recurseLimit = 3;
 
 	//put a limit on the depth of recursion
-	//if (recurseDepth<3)
-	//{
+	if (recurseDepth<recurseLimit)
+	{
 		//reflect our view across the normal
 		//recusively raytrace from the surface point along the reflected view
 		//add the color seen times the reflective color
@@ -73,7 +92,7 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth)
 			//divide entry angle by index of refraction to get exit angle
 		//recursively raytrace from the other side of the object along the new direction
 		//add the color seen times the transparent color
-	//}
+	}
 
 	//multiply whatever color we have found by the texture color
 	answer=multiplyColorVectors(answer,textureColor);

@@ -1,4 +1,5 @@
 #include "rtObjGroup.h"
+#include "scene.h"			// mostly for MAX_DIST
 
 //default constructor
 rtObjGroup::rtObjGroup()  
@@ -18,7 +19,7 @@ rtObject* rtObjGroup::getObj(int index)
 
 float rtObjGroup::testIntersections(Vec3f eye, Vec3f dir)
 {
-	float closest = 9999999;
+	float closest = MAX_DIST;
 	float currentDist;
 	//test intersection distance with every object in the group
 	for (int iter=0; iter<myObjects.size(); iter++)

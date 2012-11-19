@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 {
 	if(TEST_SCENE)
 	{
-		myScene = new scene("rst.ray");
+		myScene = new scene("spl.ray");
 	}
 	else
 	{
@@ -91,7 +91,7 @@ void drawScene(int d)
 	fovy = fovy * PI/180;
 
 	//invert the direction of the up vector so that the image appears right side up
-	up.Scale(-1, -1, -1);
+	up.Negate();
 
 	//get the direction we are looking
 	Vec3f dir = lookAt-eye;
@@ -109,29 +109,14 @@ void drawScene(int d)
 	{
 		for (int y=0; y < HEIGHT; y++)
 		{
-			//some code that just makes a green/red pattern
-			//currentColor.Set(x%255/255.0,y%255/255.0,0);
-
-			//you will have to write this function in the scene class, using
-			//recursive raytracing to determine color
 			float u = viewRange * (x + .5 - (float)(WIDTH) / 2.0) / (float)(WIDTH);
 			float v = viewRange * (y + .5 - (float)(HEIGHT) / 2.0) / (float)(WIDTH);
 
 
-			Vec3f curdir = dir + Vec3f(up.x() * v, up.y() * v, up.z() * v) + Vec3f(left.x() * u, left.y() * u, left.z() * u);
-			//curdir.Normalize();
+			Vec3f curdir = dir + (up * v) + (left * u);
+			curdir.Normalize();
 
-			/*
-			test++;
-			if(test%30 == 0)
-			{
-				printf("\nu: %f\nv: %f\n", u, v);
-				curdir.Write(stdout);
-
-			}
-			*/
-
-			currentColor = myScene->rayTrace(eye, curdir, 0);
+			currentColor = myScene->rayTrace(eye, curdir, 0);		// initialize the ray tracing with given vectors
 
 			//put the color into our image buffer (making sure value is within range)
 			plotPixel(x,y,((int)(min(max(currentColor.x(),0),1)*255))%256,
