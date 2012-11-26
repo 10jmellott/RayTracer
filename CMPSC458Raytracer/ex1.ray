@@ -1,0 +1,91 @@
+# author: Joshua Mellott-Lillie
+
+Background {
+	color 0 0 0
+	ambientLight 0 0 0
+}
+
+Camera {
+	eye 20 0 0
+	lookAt 0 0 0
+	up 0 0 1
+	fovy 45
+}
+
+Lights {
+    Light {
+		position 0 0 3
+		color 1 0 0
+	}
+	Light {
+		position 0 3 -3
+		color 0 1 0
+	}
+	Light {
+		position 0 -3 -3
+		color 0 0 1
+	}
+}
+
+Materials {
+	Material {
+		textureFilename NULL
+		diffuseColor 1 0 0
+		specularColor 0 1 1
+		reflectiveColor 0.5 0 0
+		shininess 32
+		transparentColor 0 0 0 
+		indexOfRefraction 0
+	}
+	Material {
+		textureFilename NULL
+		diffuseColor 0 1 0
+		specularColor 1 0 1
+		reflectiveColor 0 0.5 0
+		shininess 32
+		transparentColor 0 0 0 
+		indexOfRefraction 0
+	}
+	Material {
+		textureFilename NULL
+		diffuseColor 0 0 1
+		specularColor 1 1 0
+		reflectiveColor 0 0 0.5
+		shininess 32
+		transparentColor 0 0 0 
+		indexOfRefraction 0
+	}
+	Material {
+		textureFilename NULL
+		diffuseColor .5 .5 .5
+		specularColor 0.1 0.1 0.1
+		reflectiveColor 0.5 0.5 0.5
+		shininess 32
+		transparentColor 0 0 0 
+		indexOfRefraction 0
+	}
+}
+
+Group {
+	Sphere {
+		materialIndex 0
+		center 0 0 -3
+		radius 2
+	}
+	Sphere {
+		materialIndex 1
+		center 0 -2.598 1.5
+		radius 2
+	}
+	Sphere {
+		materialIndex 2
+		center 0 2.598 1.5
+		radius 2
+	}
+	Sphere {
+		materialIndex 3
+		center 0 0 0
+		radius 1
+	}
+
+}

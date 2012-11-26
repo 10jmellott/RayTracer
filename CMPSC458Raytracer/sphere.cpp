@@ -15,6 +15,8 @@ float sphere::testIntersection(Vec3f eye, Vec3f dir)
 	if(disc < 0) return MAX_DIST;
 	float t1 = (-1 * dir.Dot3(eye - center) + sqrt(disc)) / dir.Dot3(dir);
 	float t2 = (-1 * dir.Dot3(eye - center) - sqrt(disc)) / dir.Dot3(dir);
+	if(t1 < 0 || t2 < 0)
+		return MAX_DIST;
 	return min(t1, t2);
 }
 
@@ -22,7 +24,7 @@ Vec3f sphere::getNormal(Vec3f eye, Vec3f dir)
 {
 	Vec3f normal;
 
-	normal = (eye + dir * testIntersection(eye, dir)) - center;	
+	normal = (eye + dir * testIntersection(eye, dir)) - center;
 	normal.Normalize();
 
 	return normal;

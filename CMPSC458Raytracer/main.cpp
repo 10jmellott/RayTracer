@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 {
 	if(TEST_SCENE)
 	{
-		myScene = new scene("te.ray");
+		myScene = new scene("rr.ray");
 	}
 	else
 	{
@@ -87,6 +87,7 @@ void drawScene(int d)
 	Vec3f up = myScene->getUp();
 	float fovy = myScene->getFovy();
 
+	// converts to rad
 	fovy = fovy * PI/180;
 
 	//invert the direction of the up vector so that the image appears right side up
@@ -102,14 +103,15 @@ void drawScene(int d)
 
 	Vec3f currentColor;
 
+	float aspectRatio = 1.1;  // given value for creating an approximate perfect area
 	float viewRange = tan(fovy);
 
 	for (int x=0; x < WIDTH; x++)
 	{
 		for (int y=0; y < HEIGHT; y++)
 		{
-			float u = viewRange * (x + .5 - (float)(WIDTH) / 2.0) / (float)(WIDTH);
-			float v = viewRange * (y + .5 - (float)(HEIGHT) / 2.0) / (float)(WIDTH);
+			float u = aspectRatio * viewRange * (x - (float)(WIDTH) / 2.0) / (float)(WIDTH);
+			float v = aspectRatio * viewRange * (y - (float)(HEIGHT) / 2.0) / (float)(WIDTH);
 
 
 			Vec3f curdir = dir + (up * v) + (left * u);
@@ -122,9 +124,12 @@ void drawScene(int d)
 				((int)(min(max(currentColor.y(),0),1)*255))%256,
 				((int)(min(max(currentColor.z(),0),1)*255))%256);
 
-			//refresh display every 10 completed columns of pixels
-			if (y==0 && x%10==0)
+			//refresh display every 20 completed columns of pixels
+			if (y==0 && x%20==0)
+			{
 				display();
+				// system("pause");
+			}
 		}
 	}
 

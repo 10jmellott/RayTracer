@@ -2,43 +2,39 @@
 
 Background {
 	# Color of the background 
-	color 0.05 0.05 0.05 
+	color 0 0 0 
 	# low intensity white light
 	ambientLight 0.2 0.2 0.2 
 }
 
 Camera {
-	eye 0 5 3
-	lookAt 15 0 0
+	eye 20 0 -2
+	lookAt 10 0 -2
 	up 0 0 1
 	fovy 45
 }
 Lights {
     	Light {
-		position 11 0 10
+		position 10 1 8
 		color 1 1 1
-	}
-    	Light {
-		position 30 0 0
-		color .3 .3 .3
 	}
 }
 
 Materials {
 	Material {
 		textureFilename NULL
-		diffuseColor 0.5 0.5 0.5
+		diffuseColor 0.3 0.3 0.3
 		specularColor 0.3 0.3 0.3
-		reflectiveColor 0.5 0.5 0.5
+		reflectiveColor 0 0 0
 		shininess 50
-		transparentColor 0 0 0 
+		transparentColor 0.8 0.8 0.8
 		indexOfRefraction 0.6
 	}
 	Material {
 		textureFilename NULL
-		diffuseColor 0 0 0.5
-		specularColor 0.8 0.8 0.8
-		reflectiveColor 0.3 0.3 0.3
+		diffuseColor 0.8 0.1 0.1
+		specularColor 0.3 0.3 0.3
+		reflectiveColor 0 0 0
 		shininess 50
 		transparentColor 0 0 0 
 		indexOfRefraction 0.6
@@ -47,14 +43,9 @@ Materials {
 
 Group {
 	Sphere {
-		materialIndex 0
-		center 15 3 3
-		radius 2
-	}
-	Sphere {
-		materialIndex 0
-		center 15 -3 3
-		radius 2
+		materialIndex 1
+		center 5 0 -2
+		radius 3
 	}
 	Triangle {
 		vertex0 10 0 -2
@@ -63,7 +54,7 @@ Group {
 		tex_xy_0 1 0
 		tex_xy_1 0 0
 		tex_xy_2 0 1
-		materialIndex 1
+		materialIndex 0
 	}
 	Triangle {
 		vertex0 10 0 -2
@@ -72,7 +63,7 @@ Group {
 		tex_xy_0 1 0
 		tex_xy_1 0 0
 		tex_xy_2 0 1
-		materialIndex 1
+		materialIndex 0
 	}
 	Triangle {
 		vertex0 10 0 -2
@@ -81,7 +72,7 @@ Group {
 		tex_xy_0 1 0
 		tex_xy_1 0 0
 		tex_xy_2 0 1
-		materialIndex 1
+		materialIndex 0
 	}
 	Triangle {
 		vertex0 15 0 2
@@ -90,6 +81,6 @@ Group {
 		tex_xy_0 1 0
 		tex_xy_1 0 0
 		tex_xy_2 0 1
-		materialIndex 1
+		materialIndex 0
 	}
 }

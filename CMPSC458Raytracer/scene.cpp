@@ -12,6 +12,18 @@ scene::scene(const char* filename)
 	cout<<endl;
 }
 
+bool refract(Vec3f d, Vec3f n, float refI, Vec3f *t)
+{
+	float disc = 1 - (refI * refI * (1 - pow(d.Dot3(n), 2)));
+	if(disc < 0)
+		return false;
+
+	*t = (d - n * d.Dot3(n)) * refI - n * sqrt(disc);
+	t->Normalize();
+
+	return true;
+}
+
 Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth, rtObject *skip_obj)
 {
 	//start with black, add color as we go
@@ -59,47 +71,79 @@ Vec3f scene::rayTrace(Vec3f eye, Vec3f dir, int recurseDepth, rtObject *skip_obj
 		Vec3f light = li->position - closest_inter;
 		light.Normalize();
 
-		int t = myObjGroup->testIntersections(li->position, light, closest_obj);
+		float t = myObjGroup->testIntersections(closest_inter, light, closest_obj);
+		
+		Vec3f accumLightDecay(1, 1, 1);
+		int lightpass = 0;
 
-		if(t == MAX_DIST)
+
+		while(myObjGroup->getClosest() != closest_obj && lightpass < 3 && t < MAX_DIST)
+		{
+			accumLightDecay = multiplyColorVectors(myMaterials.at(myObjGroup->getClosest()->getMatIndex()).transparentCol, accumLightDecay);
+			lightpass++;
+			t = myObjGroup->testIntersections(li->position + light * t, light, myObjGroup->getClosest());
+		}
+
+		if(lightpass != 3 && t == MAX_DIST)
 		{
 			Vec3f lambert = multiplyColorVectors(myMaterials.at(matIndex).diffuseCol, li->color * max(0.0f, light.Dot3(normal)));
+			lambert = multiplyColorVectors(lambert, accumLightDecay);
 			answer += lambert;
 
 			Vec3f h = light - dir;
 			h.Normalize();
 
 			Vec3f phong = myMaterials.at(matIndex).specularCol * pow(normal.Dot3(h), myMaterials.at(matIndex).shininess);
+			phong = multiplyColorVectors(phong, accumLightDecay);
 			answer += phong;
 		}
 	}
 
-	//add the diffuse light times the accumulated diffuse light to our answer
-	int recurseLimit = 2;
+	int recurseLimit = 3;
 
 	//put a limit on the depth of recursion
 	if (recurseDepth<recurseLimit)
 	{
+		Vec3f recurseCol;
+
 		//reflect our view across the normal
-		Vec3f reflect = dir - normal * (2 * dir.Dot3(normal));
+		Vec3f reflect = dir - (normal * dir.Dot3(normal) * 2);
+		reflect.Normalize();
+
 		//recusively raytrace from the surface point along the reflected view
 		//add the color seen times the reflective color
-		Vec3f recurseCol = rayTrace(closest_inter, reflect, recurseDepth+1, closest_obj);
+		
+		recurseCol = rayTrace(closest_inter, reflect, recurseDepth+1, closest_obj);
+		
 		if(recurseCol != bgColor)
-			answer=multiplyColorVectors(answer, recurseCol);
+		{
+			recurseCol = multiplyColorVectors(recurseCol, myMaterials.at(matIndex).reflectiveCol);
+			answer += recurseCol;
+		}
+
+
+		// test for refraction
+		float refI = myMaterials.at(matIndex).refractionIndex;
+		bool refracts;
+		Vec3f t;
 
 		//if going into material (dot prod of dir and normal is negative), bend toward normal
-			//find entry angle using inverse cos of dot product of dir and -normal
-			//multiply entry angle by index of refraction to get exit angle
+		if(dir.Dot3(normal) < 0)
+			refracts = refract(dir, normal, refI, &t); 
 		//else, bend away
-			//find entry angle using inverse cos of dot product of dir and normal
-			//divide entry angle by index of refraction to get exit angle
+		else
+			refracts = refract(dir, normal * -1, 1 / refI, &t); 
+
 		//recursively raytrace from the other side of the object along the new direction
+		if(refracts) recurseCol = rayTrace(closest_inter, t, recurseDepth + 1, closest_obj);
 		//add the color seen times the transparent color
+		answer += multiplyColorVectors(recurseCol, myMaterials.at(matIndex).transparentCol);
+
 	}
 
 	//multiply whatever color we have found by the texture color
 	answer=multiplyColorVectors(answer,textureColor);
+
 	return answer;
 }
 
