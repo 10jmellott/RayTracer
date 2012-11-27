@@ -21,7 +21,7 @@ using namespace std;
 
 #define WI 640
 #define HE 480
-#define TEST_SCENE 1
+#define TEST_SCENE 0
 
 //size of the display window
 int WIDTH = WI;
@@ -42,7 +42,11 @@ int main(int argc, char **argv)
 {
 	if(TEST_SCENE)
 	{
+<<<<<<< HEAD
 		myScene = new scene("rr.ray");
+=======
+		myScene = new scene("rp.ray");
+>>>>>>> Added Example Scenes
 	}
 	else
 	{
@@ -55,13 +59,9 @@ int main(int argc, char **argv)
 		}
 		else //otherwise, use the name provided
 		{
-			/* Open jpeg (reads into memory) */
-			char* filename = argv[1];
-			myScene = new scene(filename);
+			myScene = new scene(argv[1]);
 		}
 	}
-
-	
 
 	initGL();
 

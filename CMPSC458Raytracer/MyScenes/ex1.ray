@@ -6,7 +6,7 @@ Background {
 }
 
 Camera {
-	eye 20 0 0
+	eye 15 0 0
 	lookAt 0 0 0
 	up 0 0 1
 	fovy 45
@@ -69,17 +69,17 @@ Materials {
 Group {
 	Sphere {
 		materialIndex 0
-		center 0 0 -3
+		center 0 0 -4
 		radius 2
 	}
 	Sphere {
 		materialIndex 1
-		center 0 -2.598 1.5
+		center 0 -3.464 2
 		radius 2
 	}
 	Sphere {
 		materialIndex 2
-		center 0 2.598 1.5
+		center 0 3.464 2
 		radius 2
 	}
 	Sphere {
